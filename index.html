@@ -241,71 +241,54 @@
     let gameState = { currentGoal: 0, ballsLeft: 0, currentAnswer: 0, correctLane: '', isLock: false, timerId: null, timeLeft: 0, globalNextTimeout: null };
 
     // 內建 Web Audio API 音效產生器
-    // 讓 audioCtx 變數先宣告，但不要一開始就 new 出來
-    let audioCtx = null;
-
-    // 取得或建立 AudioContext 的 Helper
-    function getAudioContext() {
-        if (!audioCtx) {
-            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContextClass();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        return audioCtx;
-    }
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
-        try {
-            const ctx = getAudioContext(); // 💡 每次播放時動態取得並嘗試喚醒
-            if (!ctx) return;
-            
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+        // 確保因瀏覽器安全機制被靜音時能重啟
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
 
-            const now = audioCtx.currentTime;
+        const now = audioCtx.currentTime;
 
-            if (type === 'correct') { // 叮咚上升音
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now);
-                osc.stop(now + 0.4);
-            } else if (type === 'wrong') { // 嗶——低沉下降音
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, now); // A3
-                osc.frequency.linearRampToValueAtTime(110, now + 0.4); // A2
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now);
-                osc.stop(now + 0.4);
-            } else if (type === 'victory') { // 過關歡快音樂
-                osc.type = 'triangle';
-                let notes = [523.25, 587.33, 659.25, 783.99]; // C5, D5, E5, G5
-                notes.forEach((f, i) => {
-                    osc.frequency.setValueAtTime(f, now + i * 0.15);
-                });
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
-                osc.start(now);
-                osc.stop(now + 0.7);
-            } else if (type === 'gameover') { // 失敗悲傷音樂
-                osc.type = 'sawtooth';
-                let notes = [293.66, 277.18, 261.63, 220.00]; // D4, C#4, C4, A3
-                notes.forEach((f, i) => {
-                    osc.frequency.setValueAtTime(f, now + i * 0.2);
-                });
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
-                osc.start(now);
-                osc.stop(now + 0.8);
-            }
-        } catch (e) {
-        console.log('Audio error:', e);
+        if (type === 'correct') { // 叮咚上升音
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, now); // C5
+            osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        } else if (type === 'wrong') { // 嗶——低沉下降音
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, now); // A3
+            osc.frequency.linearRampToValueAtTime(110, now + 0.4); // A2
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        } else if (type === 'victory') { // 過關歡快音樂
+            osc.type = 'triangle';
+            let notes = [523.25, 587.33, 659.25, 783.99]; // C5, D5, E5, G5
+            notes.forEach((f, i) => {
+                osc.frequency.setValueAtTime(f, now + i * 0.15);
+            });
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+            osc.start(now);
+            osc.stop(now + 0.7);
+        } else if (type === 'gameover') { // 失敗悲傷音樂
+            osc.type = 'sawtooth';
+            let notes = [293.66, 277.18, 261.63, 220.00]; // D4, C#4, C4, A3
+            notes.forEach((f, i) => {
+                osc.frequency.setValueAtTime(f, now + i * 0.2);
+            });
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+            osc.start(now);
+            osc.stop(now + 0.8);
         }
     }
 
@@ -348,19 +331,7 @@
     }
 
     function startGame() {
-        // 💡 1. 取得並喚醒 AudioContext
-        const ctx = getAudioContext();
-        
-        // 💡 2. 播一個極短的靜音解鎖手機 Audio 限制
-        if (ctx) {
-            const dummyOsc = ctx.createOscillator();
-            const dummyGain = ctx.createGain();
-            dummyGain.gain.value = 0.001; // 幾乎無聲
-            dummyOsc.connect(dummyGain);
-            dummyGain.connect(ctx.destination);
-            dummyOsc.start();
-            dummyOsc.stop(ctx.currentTime + 0.01);
-        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         config.ranges = Array.from(rangeGrid.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
         if (config.ranges.length === 0) {
             alert('請至少勾選一個乘法範圍！');
