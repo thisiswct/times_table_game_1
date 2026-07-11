@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>雙語數學：九九乘法足球PK戰 PRO</title>
     <style>
         :root {
@@ -11,152 +11,144 @@
             --danger: #ef4444;
             --field-green: #2e7d32;
         }
-        * { box-sizing: border-box; font-family: 'Arial', sans-serif; }
-        body { margin: 0; padding: 0; background: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        * { box-sizing: border-box; font-family: 'Arial', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; background: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; touch-action: manipulation; }
         
-        #game-container { width: 100%; max-width: 800px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; overflow: hidden; min-height: 600px; display: flex; flex-direction: column; }
-        
+        #game-container { width: 100%; max-width: 800px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; overflow: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+        @media (min-width: 600px) {
+            #game-container { min-height: 650px; height: 90vh; border-radius: 12px; }
+        }
+
         /* 遊戲大廳 */
-        #lobby { padding: 30px; display: flex; flex-direction: column; gap: 20px; }
-        h1 { text-align: center; color: var(--primary); margin-top: 0; }
-        .setup-group { background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
-        .setup-label { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; display: block; color: #374151; }
+        #lobby { padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        h1 { text-align: center; color: var(--primary); margin: 10px 0; font-size: 1.5rem; }
+        .setup-group { background: #f9fafb; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .setup-label { font-weight: bold; font-size: 1rem; margin-bottom: 8px; display: block; color: #374151; }
         
         .number-picker { display: flex; align-items: center; gap: 10px; }
-        .picker-btn { width: 40px; height: 40px; border: none; background: var(--primary); color: white; font-size: 1.5rem; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .picker-btn { width: 44px; height: 44px; border: none; background: var(--primary); color: white; font-size: 1.5rem; border-radius: 6px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         .picker-btn:active { transform: scale(0.95); }
         .picker-val { 
-            font-size: 1.5rem; 
+            font-size: 1.3rem; 
             font-weight: bold; 
-            width: 70px;         /* 稍微加寬一點點，打三位數（如100秒）才不會被切到 */
+            width: 80px; 
             text-align: center; 
             border: 2px solid #d1d5db;
             border-radius: 6px;
             background: white;
-            padding: 2px 0;
+            padding: 5px 0;
         }
-        /* 拔除 Chrome/Safari/Edge 的數字小箭頭 */
         .picker-val::-webkit-outer-spin-button,
-        .picker-val::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+        .picker-val::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-        .checkbox-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
-        .check-item { display: flex; align-items: center; gap: 8px; background: white; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; color: #374151; }
-        .check-item input { width: 18px; height: 18px; }
+        .checkbox-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+        .check-item { display: flex; align-items: center; justify-content: center; gap: 4px; background: white; padding: 10px 4px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; color: #374151; font-size: 0.9rem; }
+        .check-item input { width: 20px; height: 20px; }
         .bulk-btns { display: flex; gap: 10px; }
-        .btn-small { padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-small { flex: 1; padding: 8px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
         
-        .btn-start { padding: 15px; background: var(--accent); color: white; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; text-align: center; margin-top: 10px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
-        .btn-start:hover { background: #059669; }
+        .btn-start { padding: 15px; background: var(--accent); color: white; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; text-align: center; margin-top: 10px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
+        .btn-start:active { background: #059669; transform: scale(0.98); }
 
         /* 足球場畫面 */
-        #stage { display: none; flex-direction: column; flex-grow: 1; background: var(--field-green); position: relative; color: white; }
+        #stage { display: none; flex-direction: column; flex-grow: 1; background: var(--field-green); position: relative; color: white; height: 100%; }
         
-        #hud { display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.4); font-size: 1.1rem; font-weight: bold; z-index: 10; }
-        #timer { color: #fde047; font-size: 1.3rem; }
+        #hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(0,0,0,0.5); font-size: 0.95rem; font-weight: bold; z-index: 10; }
+        #timer { color: #fde047; font-size: 1.1rem; }
 
-        #question-box { text-align: center; margin: 20px auto; background: rgba(255,255,255,0.9); color: #111827; padding: 15px 40px; border-radius: 50px; font-size: 2.5rem; font-weight: bold; border: 4px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10; }
+        #question-box { text-align: center; margin: 10px auto; background: rgba(255,255,255,0.95); color: #111827; padding: 8px 25px; border-radius: 30px; font-size: 2rem; font-weight: bold; border: 3px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10; }
 
         /* 球場與圖層設計 */
-        #pitch-area { position: relative; flex-grow: 1; min-height: 320px; display: flex; justify-content: center; }
+        #pitch-area { position: relative; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding-bottom: 20px; overflow: hidden; }
         
-        /* 1. 球門圖層 (底層) */
-        #goal-post { position: absolute; top: 10px; width: 75%; height: 200px; z-index: 1; }
+        #goal-post { position: absolute; top: 10px; width: 85%; height: 160px; z-index: 1; }
         #goal-post img { width: 100%; height: 100%; object-fit: fill; }
         
-        /* 2. 守門員圖層 (疊在球門上方) */
         #goalkeeper { 
             position: absolute; 
-            
-            /* 💡 核心修改：把尺寸調大（原本是寬 90px、高 120px） */
-            width: 130px;                /* 寬度放大到 130px */
-            height: 160px;               /* 高度放大到 160px */
-            
-            /* 💡 位置同步微調 */
-            top: 50px;                   /* 調整垂直位置（原本是 80px），因為變高了，往上提一點才不會擋住底下的數字列 */
-            left: calc(50% - 65px);      /* 👈 注意：這裡改為減去 65px！(必須是 width 的一半，這樣預備狀態才會在正中間) */
-            
+            width: 100px; 
+            height: 130px; 
+            top: 40px; 
+            left: calc(50% - 50px); 
             z-index: 3; 
             transition: left 0.3s ease-out; 
         }
         #goalkeeper img { width: 100%; height: 100%; object-fit: contain; }
         
-        /* 守門員準備狀態的微幅上下震動 */
         .vibe { animation: idleVibe 0.3s ease-in-out infinite alternate; }
         @keyframes idleVibe { 
             0% { transform: translateY(0); } 
-            100% { transform: translateY(-8px); } 
+            100% { transform: translateY(-6px); } 
         }
 
-        /* 3. 足球圖層 */
         #football { 
             position: absolute; 
-            bottom: 20px; 
-            left: calc(50% - 40px); /* 這裡也要同步改：改為 width 的一半，球才會在正中間 (80/2 = 40) */
-            width: 80px;            /* 框框寬度調大 */
-            height: 80px;           /* 框框高度調大 */
-            font-size: 3rem;      /* 💡 核心控制：調大這個數字，⚽ 就會變大！(預設大概是 3rem 左右) */
+            bottom: 15px; 
+            left: calc(50% - 30px); 
+            width: 60px; 
+            height: 60px; 
+            font-size: 2.5rem; 
             text-align: center;
-            line-height: 80px;      /* 💡 讓 ⚽ 在框框裡垂直置中 (數值跟 height 一樣) */
+            line-height: 60px; 
             z-index: 4; 
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
         }
-        #football img { width: 100%; height: 100%; object-fit: contain; }
 
-        /* 數字列與提示 */
-        #lanes-container { position: absolute; top: 220px; width: 75%; display: flex; justify-content: space-between; z-index: 5; }
-        .lane-target { width: 30%; display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.6); border-radius: 8px; padding: 5px 0; border: 2px dashed rgba(255,255,255,0.4); }
-        .lane-num { font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); color: #fff; }
-        .key-hint { background: #fff; color: #000; font-weight: bold; border-radius: 4px; padding: 2px 12px; font-size: 1rem; margin-top: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-
-        /* 點擊時的視覺回饋（像真實按鈕一樣沉下去） */
-        .key-hint:active {
-            background: #e5e7eb;
+        /* 數字列與提示 (優化手機點擊體驗) */
+        #lanes-container { position: absolute; top: 160px; width: 90%; display: flex; justify-content: space-between; z-index: 20; }
+        .lane-target { 
+            width: 30%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7); 
+            border-radius: 10px; 
+            padding: 10px 0; 
+            border: 2px solid rgba(255,255,255,0.6); 
+            cursor: pointer;
+            user-select: none;
+        }
+        .lane-target:active {
+            background: rgba(16, 185, 129, 0.8);
             transform: scale(0.95);
         }
+        .lane-num { font-size: 1.8rem; font-weight: bold; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        .key-hint { background: #fff; color: #000; font-weight: bold; border-radius: 4px; padding: 2px 10px; font-size: 0.9rem; margin-top: 4px; pointer-events: none; }
 
         /* 即時大字回饋層 */
         #feedback-banner { 
             display: none; 
             position: absolute; 
-            bottom: 2%; 
+            top: 45%; 
             left: 50%; 
-            transform: translateX(-50%);
-            font-size: 2.8rem;          /* 稍微縮小一點點點，避免框框太大 */
+            transform: translate(-50%, -50%);
+            font-size: 2.2rem; 
             font-weight: bold; 
             z-index: 50; 
             text-align: center; 
             pointer-events: none; 
-            
-            /* 💡 核心新增：白色背景與精緻樣式 */
-            background: rgba(255, 255, 255, 0.95); /* 95% 不透明的純白背景，效果非常清晰 */
-            padding: 10px 30px;                    /* 讓文字跟邊框維持舒適的上下左右距離 */
-            border-radius: 20px;                   /* 圓角效果，看起來比較親切、有遊戲感 */
-            border: 5px solid currentColor;        /* 自動讀取文字顏色（綠色或紅色）作為外框線 */
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);/* 加上柔和的陰影，讓整個文字框「浮起來」 */
-            
-            /* 限制框框寬度，確保在手機或小螢幕上也能完美置中 */
-            width: auto;
-            max-width: 85%;
-            white-space: nowrap;                   /* 強制文字不換行 */
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 10px 20px; 
+            border-radius: 15px; 
+            border: 4px solid currentColor; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
+            white-space: nowrap; 
         }
         
         /* 結算覆蓋層 */
         #gameover-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-        #result-title { font-size: 3.5rem; font-weight: bold; margin-bottom: 20px; }
-        .btn-action { padding: 15px 40px; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        #result-title { font-size: 2.8rem; font-weight: bold; margin-bottom: 20px; }
+        .btn-action { padding: 12px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; background: var(--primary); color: white; }
+        
+        .btn-abort { padding: 6px 12px; background: var(--danger); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
     </style>
 </head>
 <body>
-<div style="position: absolute; bottom: 10px; right: 15px; width: 50px; height: auto; z-index: 60; pointer-events: none;">
-    <img src="RCCR_logo.png" alt="RCCR Bilingual" style="width: 100%; height: auto; object-fit: contain;">
-</div>
 
 <div id="game-container">
     <div id="lobby">
-        <h1>⚽ RCCR雙語數學：九九乘法足球PK戰 ⚽</h1>
+        <h1>⚽ RCCR 雙語數學<br>九九乘法足球 PK 戰 ⚽</h1>
         
         <div class="setup-group">
             <span class="setup-label">1. 每回合秒數 (Seconds per round):</span>
@@ -190,37 +182,36 @@
 
     <div id="stage">
         <div id="hud">
-            <div>⚽ 進球 (Goals): <span id="hud-score">0</span> / <span id="hud-target">5</span></div>
-            <div id="timer">⏱️ 倒數: 10s</div>            
-            <div>🔮 剩餘球數 (Balls Left): <span id="hud-balls">8</span></div>
-            <button onclick="abortToLobby()" style="position: absolute; bottom: 15px; right: 15px; padding: 8px 15px; background: rgba(239, 68, 68, 0.85); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; z-index: 60; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: background 0.2s;">🏠 返回大廳</button>
-            
+            <div>⚽ <span id="hud-score">0</span> / <span id="hud-target">5</span></div>
+            <div id="timer">⏱️ 10s</div>            
+            <div>🔮 剩餘: <span id="hud-balls">8</span></div>
+            <button class="btn-abort" onclick="abortToLobby()">🏠 大廳</button>
         </div>
 
         <div id="question-box">0 × 0 = ?</div>
 
         <div id="pitch-area">
             <div id="goal-post">
-                <img src="goal.png" alt="Goal">
+                <img src="goal.png" alt="Goal" onerror="this.style.display='none'">
             </div>
             
             <div id="goalkeeper" class="vibe">
-                <img id="keeper-img" src="keeper-ready.png" alt="Keeper">
+                <img id="keeper-img" src="keeper-ready.png" alt="Keeper" onerror="this.style.display='none'">
             </div>
             
-            <!-- 修改後：加上 onclick 事件，讓手機直接用手指點擊箭頭就能射門 -->
+            <!-- 整個 lane-target 區域都可以點擊 -->
             <div id="lanes-container">
-                <div class="lane-target" id="lane-L">
+                <div class="lane-target" id="lane-L" onclick="handleKick('L')">
                     <span class="lane-num" id="num-L">-</span>
-                    <span class="key-hint" onclick="handleKick('L')">←</span>
+                    <span class="key-hint">←</span>
                 </div>
-                <div class="lane-target" id="lane-C">
+                <div class="lane-target" id="lane-C" onclick="handleKick('C')">
                     <span class="lane-num" id="num-C">-</span>
-                    <span class="key-hint" onclick="handleKick('C')">↑</span>
+                    <span class="key-hint">↑</span>
                 </div>
-                <div class="lane-target" id="lane-R">
+                <div class="lane-target" id="lane-R" onclick="handleKick('R')">
                     <span class="lane-num" id="num-R">-</span>
-                    <span class="key-hint" onclick="handleKick('R')">→</span>
+                    <span class="key-hint">→</span>
                 </div>
             </div>
 
@@ -240,65 +231,69 @@
     let config = { sec: 10, goals: 5, ranges: [] };
     let gameState = { currentGoal: 0, ballsLeft: 0, currentAnswer: 0, correctLane: '', isLock: false, timerId: null, timeLeft: 0, globalNextTimeout: null };
 
-    // 內建 Web Audio API 音效產生器
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSound(type) {
-        // 確保因瀏覽器安全機制被靜音時能重啟
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        const now = audioCtx.currentTime;
-
-        if (type === 'correct') { // 叮咚上升音
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(523.25, now); // C5
-            osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-            osc.start(now);
-            osc.stop(now + 0.4);
-        } else if (type === 'wrong') { // 嗶——低沉下降音
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(220, now); // A3
-            osc.frequency.linearRampToValueAtTime(110, now + 0.4); // A2
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-            osc.start(now);
-            osc.stop(now + 0.4);
-        } else if (type === 'victory') { // 過關歡快音樂
-            osc.type = 'triangle';
-            let notes = [523.25, 587.33, 659.25, 783.99]; // C5, D5, E5, G5
-            notes.forEach((f, i) => {
-                osc.frequency.setValueAtTime(f, now + i * 0.15);
-            });
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
-            osc.start(now);
-            osc.stop(now + 0.7);
-        } else if (type === 'gameover') { // 失敗悲傷音樂
-            osc.type = 'sawtooth';
-            let notes = [293.66, 277.18, 261.63, 220.00]; // D4, C#4, C4, A3
-            notes.forEach((f, i) => {
-                osc.frequency.setValueAtTime(f, now + i * 0.2);
-            });
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
-            osc.start(now);
-            osc.stop(now + 0.8);
+    // 音效解鎖機制（配合手機權限）
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
         }
     }
 
-    // 初始化大廳九九乘法選項
+    function playSound(type) {
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.4);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'victory') {
+                osc.type = 'triangle';
+                let notes = [523.25, 587.33, 659.25, 783.99];
+                notes.forEach((f, i) => osc.frequency.setValueAtTime(f, now + i * 0.15));
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+                osc.start(now);
+                osc.stop(now + 0.7);
+            } else if (type === 'gameover') {
+                osc.type = 'sawtooth';
+                let notes = [293.66, 277.18, 261.63, 220.00];
+                notes.forEach((f, i) => osc.frequency.setValueAtTime(f, now + i * 0.2));
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+                osc.start(now);
+                osc.stop(now + 0.8);
+            }
+        } catch(e) { console.log(e); }
+    }
+
+    // 初始化選項
     const rangeGrid = document.getElementById('range-grid');
     for (let i = 2; i <= 9; i++) {
         rangeGrid.innerHTML += `
             <label class="check-item">
                 <input type="checkbox" value="${i}" checked>
-                <span>${i} 的乘法</span>
+                <span>${i} 乘</span>
             </label>
         `;
     }
@@ -306,22 +301,21 @@
     function adjustValue(type, change) {
         if (type === 'sec') {
             config.sec = Math.max(3, config.sec + change);
-            document.getElementById('val-sec').value = config.sec; // 改用 .value
+            document.getElementById('val-sec').value = config.sec;
         } else if (type === 'goals') {
             config.goals = Math.max(1, config.goals + change);
-            document.getElementById('val-goals').value = config.goals; // 改用 .value
+            document.getElementById('val-goals').value = config.goals;
         }
     }
 
-    // 💡 新增：當使用者直接在輸入框打字時，同步更新背後的變數
     function manualAdjust(type) {
         if (type === 'sec') {
             let val = parseInt(document.getElementById('val-sec').value) || 10;
-            config.sec = Math.max(3, val); // 確保最低不能少於 3 秒
+            config.sec = Math.max(3, val);
             document.getElementById('val-sec').value = config.sec;
         } else if (type === 'goals') {
             let val = parseInt(document.getElementById('val-goals').value) || 5;
-            config.goals = Math.max(1, val); // 確保最低不能少於 1 球
+            config.goals = Math.max(1, val);
             document.getElementById('val-goals').value = config.goals;
         }
     }
@@ -331,6 +325,7 @@
     }
 
     function startGame() {
+        initAudio(); // 點擊按鈕時解鎖手機音效
         config.ranges = Array.from(rangeGrid.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
         if (config.ranges.length === 0) {
             alert('請至少勾選一個乘法範圍！');
@@ -387,11 +382,11 @@
     function startTimer() {
         clearInterval(gameState.timerId);
         gameState.timeLeft = config.sec;
-        document.getElementById('timer').innerText = `⏱️ 倒數: ${gameState.timeLeft}s`;
+        document.getElementById('timer').innerText = `⏱️ ${gameState.timeLeft}s`;
         
         gameState.timerId = setInterval(() => {
             gameState.timeLeft--;
-            document.getElementById('timer').innerText = `⏱️ 倒數: ${gameState.timeLeft}s`;
+            document.getElementById('timer').innerText = `⏱️ ${gameState.timeLeft}s`;
             
             if (gameState.timeLeft <= 0) {
                 clearInterval(gameState.timerId);
@@ -407,65 +402,63 @@
         const banner = document.getElementById('feedback-banner');
         
         banner.style.display = 'none';
-        
-        // 守門員歸位並恢復微幅震動
-        keeper.style.left = 'calc(50% - 45px)';
+        keeper.style.left = 'calc(50% - 50px)';
         keeper.classList.add('vibe');
         keeperImg.src = 'keeper-ready.png';
         
-        // 足球歸位
-        ball.style.bottom = '20px';
-        ball.style.left = 'calc(50% - 25px)';
+        ball.style.bottom = '15px';
+        ball.style.left = 'calc(50% - 30px)';
         ball.style.transform = 'scale(1) rotate(0deg)';
         ball.style.opacity = '1';
     }
 
+    // 鍵盤監聽（保留電腦玩的功能）
     window.addEventListener('keydown', (e) => {
         if (gameState.isLock || document.getElementById('stage').style.display !== 'flex') return;
-        
         if (e.key === 'ArrowLeft') handleKick('L');
         else if (e.key === 'ArrowUp') handleKick('C');
         else if (e.key === 'ArrowRight') handleKick('R');
     });
 
     function handleKick(chosenLane) {
+        if (gameState.isLock) return;
         gameState.isLock = true;
         clearInterval(gameState.timerId);
-        gameState.ballsLeft--;
-        updateHud();
         
         const ball = document.getElementById('football');
         const keeper = document.getElementById('goalkeeper');
         const keeperImg = document.getElementById('keeper-img');
         
-        // 停止守門員上下微幅震動準備進行撲球
         keeper.classList.remove('vibe');
         
-        const targetPos = { 'L': '20%', 'C': 'calc(50% - 25px)', 'R': '70%' };
-        const isCorrect = (chosenLane === gameState.correctLane);
-        
         if (chosenLane === 'TIMEOUT') {
+            gameState.ballsLeft--;
+            updateHud();
             playSound('wrong');
             showFeedbackBanner("TIMEOUT 逾時 🚫", false);
             return;
         }
+
+        gameState.ballsLeft--;
+        updateHud();
         
-        // 執行射門飛行动畫
-        ball.style.bottom = '270px';
+        const targetPos = { 'L': '15%', 'C': 'calc(50% - 30px)', 'R': '70%' };
+        const isCorrect = (chosenLane === gameState.correctLane);
+        
+        // 射門動畫
+        ball.style.bottom = '200px';
         ball.style.left = targetPos[chosenLane];
         ball.style.transform = 'scale(0.6) rotate(360deg)';
         
         if (isCorrect) {
-            // 答對邏輯：進球成功。守門員隨機往【其他兩個】錯的方向撲，或者留正面撲（如果中間不是正解）
             let wrongLanes = ['L', 'C', 'R'].filter(l => l !== chosenLane);
             let randomWrong = wrongLanes[Math.floor(Math.random() * wrongLanes.length)];
             
-            // 決定隨機出現的錯圖片 (只會有正面、左撲、右撲)
             if (randomWrong === 'C') {
                 keeperImg.src = 'keeper-center.png';
             } else if (randomWrong === 'L') {
                 keeperImg.src = 'keeper-left.png';
-                keeper.style.left = '20%';
+                keeper.style.left = '15%';
             } else {
                 keeperImg.src = 'keeper-right.png';
                 keeper.style.left = '70%';
@@ -476,16 +469,14 @@
                 gameState.currentGoal++;
                 updateHud();
                 showFeedbackBanner("GOAL!! 🎉", true);
-            }, 400);
+            }, 350);
             
         } else {
-            // 答錯邏輯：被守門員擋下。
-            // 守門員精準移動到玩家按下的那個錯方向，並且秀出正確對應的撲球圖片。
             if (chosenLane === 'C') {
                 keeperImg.src = 'keeper-center.png';
             } else if (chosenLane === 'L') {
                 keeperImg.src = 'keeper-left.png';
-                keeper.style.left = '20%';
+                keeper.style.left = '15%';
             } else if (chosenLane === 'R') {
                 keeperImg.src = 'keeper-right.png';
                 keeper.style.left = '70%';
@@ -493,9 +484,7 @@
             
             setTimeout(() => {
                 playSound('wrong');
-                // 足球彈開動畫
-                ball.style.bottom = '180px';
-                ball.style.left = chosenLane === 'L' ? '10%' : chosenLane === 'R' ? '80%' : 'calc(50% - 45px)';
+                ball.style.bottom = '120px';
                 showFeedbackBanner("SAVE! ❌", false);
             }, 300);
         }
@@ -507,7 +496,6 @@
         banner.style.color = isGoal ? '#10b981' : '#ef4444';
         banner.style.display = 'block';
         
-        // 檢查大局勝負
         if (gameState.currentGoal >= config.goals) {
             clearTimeout(gameState.globalNextTimeout);
             setTimeout(() => {
@@ -521,10 +509,9 @@
                 showEndOverlay("You lose. 💔", '#ef4444');
             }, 1000);
         } else {
-            // 核心功能：間隔 1.5 秒自動進入下一題
             gameState.globalNextTimeout = setTimeout(() => {
                 generateQuestion();
-            }, 1500);
+            }, 1400);
         }
     }
 
@@ -543,15 +530,10 @@
     }
 
     function abortToLobby() {
-        // 1. 直接強行清除所有正在執行的倒數計時與自動下一題計時
         clearInterval(gameState.timerId);
         clearTimeout(gameState.globalNextTimeout);
-        
-        // 2. 切換畫面顯示
         document.getElementById('stage').style.display = 'none';
         document.getElementById('lobby').style.display = 'flex';
-        
-        // 3. 重置解鎖狀態
         gameState.isLock = false;
     }
 </script>
