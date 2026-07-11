@@ -111,6 +111,12 @@
         .lane-num { font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); color: #fff; }
         .key-hint { background: #fff; color: #000; font-weight: bold; border-radius: 4px; padding: 2px 12px; font-size: 1rem; margin-top: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
+        /* 點擊時的視覺回饋（像真實按鈕一樣沉下去） */
+        .key-hint:active {
+            background: #e5e7eb;
+            transform: scale(0.95);
+        }
+
         /* 即時大字回饋層 */
         #feedback-banner { 
             display: none; 
@@ -202,18 +208,19 @@
                 <img id="keeper-img" src="keeper-ready.png" alt="Keeper">
             </div>
             
+            <!-- 修改後：加上 onclick 事件，讓手機直接用手指點擊箭頭就能射門 -->
             <div id="lanes-container">
                 <div class="lane-target" id="lane-L">
                     <span class="lane-num" id="num-L">-</span>
-                    <span class="key-hint">←</span>
+                    <span class="key-hint" onclick="handleKick('L')">←</span>
                 </div>
                 <div class="lane-target" id="lane-C">
                     <span class="lane-num" id="num-C">-</span>
-                    <span class="key-hint">↑</span>
+                    <span class="key-hint" onclick="handleKick('C')">↑</span>
                 </div>
                 <div class="lane-target" id="lane-R">
                     <span class="lane-num" id="num-R">-</span>
-                    <span class="key-hint">→</span>
+                    <span class="key-hint" onclick="handleKick('R')">→</span>
                 </div>
             </div>
 
